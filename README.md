@@ -1,5 +1,5 @@
-See the rest of the rules for the game at regicide's website:
-regicidegame.com
+See the rest of the rules for the game at [regicide's website](https://www.regicidegame.com/site_files/33132/upload_files/RegicideRulesA4.pdf)
+
 
 This is a single player adaptation of the board/ card game Regicide.
 To use a combo or an animal companion in the game:
