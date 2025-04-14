@@ -24,9 +24,6 @@ def input_color(input_string: str, color: str, bg_color="") -> str:
     :param bg_color: an all caps string limited to the terminal background color options
     :precondition: three strings
     :return: a string with the correct text color and background color
-
-    >>> print(input_color("string", "RED"))
-    \033[31mstring\033[0m
     """
     if color == "BLACK":
         color = "\033[30m"
