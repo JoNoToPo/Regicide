@@ -1,7 +1,9 @@
-See the rest of the rules for the game at [regicide's website](https://www.regicidegame.com/site_files/33132/upload_files/RegicideRulesA4.pdf)
+See the rest of the rules for the game
+at [Regicide's Website](https://www.regicidegame.com/site_files/33132/upload_files/RegicideRulesA4.pdf)
 
 
 This is a single player adaptation of the board/ card game Regicide.
+
 To use a combo or an animal companion in the game:
 
 1. Type the index of each card and press enter
@@ -10,5 +12,4 @@ To use a combo or an animal companion in the game:
 3. You can play an ace paired with any other card
 4. If you play multiple cards the effects of each card will be applied
 
-If for whatever reason you ever want to yield, type 8.
-To use a Jester type 9.
+If for whatever reason you ever want to yield, type 8. To use a Jester type 9.
