@@ -1,6 +1,5 @@
 import random
 import os
-import sys
 
 HELPTEXT = (
     "\n\nThis is a single player adaptation of the board/ card game Regicide."
@@ -267,6 +266,8 @@ def jester(draw_pile, hand, discard_pile):
 
 def add_card(card, large_royal_played):
     current_value = card[0]
+    if current_value == "Jes":
+        current_value = 0
     if current_value == "A":
         current_value = 1
     elif current_value == "J":
