@@ -151,31 +151,72 @@ def new_enemy(enemy_list):
                 "health": 40, "damage": 20, "this_attack": 20, "card": current_baddie}
 
 
-def draw_cards(draw_pile, hand, number_of_cards=1, max_hand_size=8):
-    for number in range(number_of_cards):
-        if len(hand) < max_hand_size and len(draw_pile) > 0:
-            drawn_card = draw_pile.pop()
-            placed = False
-            counter = 0
-            while not placed:
-                if counter >= len(hand):
-                    hand.append(drawn_card)
-                    placed = True
-                elif drawn_card[0] == "A":
-                    hand.insert(0, drawn_card)
-                    placed = True
-                elif drawn_card[0] in ["J", "Q", "K"]:
-                    hand.append(drawn_card)
-                    placed = True
-                elif (hand[counter][0] != "A" and (hand[counter][0] in ["J", "Q", "K"] or
-                                                   hand[counter][0] >= drawn_card[0])):
-                    hand.insert(counter, drawn_card)
-                    placed = True
-                counter += 1
+def draw_cards(draw_pile, hand, number_of_cards=1, max_hand_size=8, hands=None):
+    if hands:
+        current_player = 0
+        for player in hands:
+            if hand == player:
+                break
+            else:
+                current_player += 1
+        for number in range(number_of_cards):
+            if len(draw_pile) > 0:
+                for _ in hands:
+                    if not len(hands[current_player]) < max_hand_size:
+                        if current_player == len(hands) - 1:
+                            current_player = 0
+                        else:
+                            current_player += 1
+                if not len(hands[current_player]) < max_hand_size:
+                    break
+                drawn_card = draw_pile.pop()
+                placed = False
+                counter = 0
+                while not placed:
+                    if counter >= len(hands[current_player]):
+                        hands[current_player].append(drawn_card)
+                        placed = True
+                    elif drawn_card[0] == "A":
+                        hands[current_player].insert(0, drawn_card)
+                        placed = True
+                    elif drawn_card[0] in ["J", "Q", "K"]:
+                        hands[current_player].append(drawn_card)
+                        placed = True
+                    elif (hands[current_player][counter][0] != "A" and (
+                            hands[current_player][counter][0] in ["J", "Q", "K"] or
+                            hands[current_player][counter][0] >= drawn_card[0])):
+                        hands[current_player].insert(counter, drawn_card)
+                        placed = True
+                    counter += 1
+                if current_player == len(hands) - 1:
+                    current_player = 0
+                else:
+                    current_player += 1
+    else:
+        for number in range(number_of_cards):
+            if len(hand) < max_hand_size and len(draw_pile) > 0:
+                drawn_card = draw_pile.pop()
+                placed = False
+                counter = 0
+                while not placed:
+                    if counter >= len(hand):
+                        hand.append(drawn_card)
+                        placed = True
+                    elif drawn_card[0] == "A":
+                        hand.insert(0, drawn_card)
+                        placed = True
+                    elif drawn_card[0] in ["J", "Q", "K"]:
+                        hand.append(drawn_card)
+                        placed = True
+                    elif (hand[counter][0] != "A" and (hand[counter][0] in ["J", "Q", "K"] or
+                                                       hand[counter][0] >= drawn_card[0])):
+                        hand.insert(counter, drawn_card)
+                        placed = True
+                    counter += 1
     return hand
 
 
-def input_parser(jester_uses, draw_pile, current_baddie, hand, discard_pile, user_input):
+def input_parser(jester_uses, draw_pile, current_baddie, hand, discard_pile, user_input, hands=None):
     user_input = "".join(set(list(user_input)))
     number_of_cards = len(user_input)
     if "9" in user_input:
@@ -186,29 +227,29 @@ def input_parser(jester_uses, draw_pile, current_baddie, hand, discard_pile, use
         else:
             return f"{input_color("Out of Jester uses", "RED")}"
     elif "8" in user_input:
-        return attack(draw_pile, current_baddie, hand, discard_pile)
+        return attack(draw_pile, current_baddie, hand, hands, discard_pile)
     elif number_of_cards == 1:
         try:
-            return attack(draw_pile, current_baddie, hand, discard_pile,
+            return attack(draw_pile, current_baddie, hand, hands, discard_pile,
                           hand[int(user_input)])
         except IndexError:
             return input_color("You don't have that card", "RED")
     elif number_of_cards == 2:
         try:
-            return attack(draw_pile, current_baddie, hand, discard_pile,
+            return attack(draw_pile, current_baddie, hand, hands, discard_pile,
                           hand[int(user_input[0])], hand[int(user_input[1])])
         except IndexError:
             return input_color("You don't have that card", "RED")
     elif number_of_cards == 3:
         try:
-            return attack(draw_pile, current_baddie, hand, discard_pile,
+            return attack(draw_pile, current_baddie, hand, hands, discard_pile,
                           hand[int(user_input[0])], hand[int(user_input[1])],
                           hand[int(user_input[2])])
         except IndexError:
             return input_color("You don't have that card", "RED")
     elif number_of_cards == 4:
         try:
-            return attack(draw_pile, current_baddie, hand, discard_pile,
+            return attack(draw_pile, current_baddie, hand, hands, discard_pile,
                           hand[int(user_input[0])], hand[int(user_input[1])],
                           hand[int(user_input[2])], hand[int(user_input[3])])
         except IndexError:
@@ -239,7 +280,7 @@ def add_card(card, large_royal_played):
     return current_value, large_royal_played
 
 
-def attack(draw_pile, current_baddie, hand, discard_pile, *user_input):
+def attack(draw_pile, current_baddie, hand, hands, discard_pile, *user_input):
     attack_value = 0
     previous_value = 0
     multiplier = 1
@@ -276,7 +317,10 @@ def attack(draw_pile, current_baddie, hand, discard_pile, *user_input):
     for card in user_input:
         hand.remove(card)
     if draws:
-        draw_cards(draw_pile, hand, attack_value)
+        if not hands:
+            draw_cards(draw_pile, hand, attack_value)
+        else:
+            draw_cards(draw_pile, hand, attack_value, 9 - len(hands), hands)
     if heals:
         for number in range(attack_value):
             if len(discard_pile) > 0:
@@ -449,7 +493,7 @@ def multiplayer(players):
                 input("Press enter to go back to the game:")
                 break
             if user_input:
-                action = input_parser(0, draw_pile, current_baddie, hand, discard_pile, user_input)
+                action = input_parser(0, draw_pile, current_baddie, hand, discard_pile, user_input, each_player_hand)
             if type(action) == str:
                 exception = action
             elif type(action) == int:
@@ -494,10 +538,10 @@ def multiplayer(players):
                             print(current_baddie)
                             break
                     current_baddie["this_attack"] = current_baddie["damage"]
-                    if current_player == players - 1:
-                        current_player = 0
-                    else:
-                        current_player += 1
+            if current_player == players - 1:
+                current_player = 0
+            else:
+                current_player += 1
 
 
 def main():
