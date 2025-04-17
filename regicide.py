@@ -172,6 +172,7 @@ def draw_cards(draw_pile, hand, number_of_cards=1, max_hand_size=8):
                     hand.insert(counter, drawn_card)
                     placed = True
                 counter += 1
+    return hand
 
 
 def input_parser(jester_uses, draw_pile, current_baddie, hand, discard_pile, user_input):
@@ -301,7 +302,7 @@ def block_attack(current_baddie, hand, card, discard_pile):
         return "Game Over"
 
 
-def baddie_stats(current_baddie, draw_pile, discard_pile, jester_uses, hand):
+def ui_display(current_baddie, draw_pile, discard_pile, jester_uses, hand):
     print(f"See the rules at any time by pressing enter."
           f"\n\n{current_baddie["Name"]}")
     print(
@@ -344,7 +345,7 @@ def game():
             print("Game Over")
             break
         user_input = False
-        baddie_stats(current_baddie, draw_pile, discard_pile, jester_uses, hand)
+        ui_display(current_baddie, draw_pile, discard_pile, jester_uses, hand)
         while not user_input:
             user_input = input(f"{input_color("You are attacking!", "YELLOW")}\n").strip()
             action = ""
@@ -388,7 +389,7 @@ def game():
                             print("Game Over")
                             game_end = True
                             break
-                        baddie_stats(current_baddie, draw_pile, discard_pile, jester_uses, hand)
+                        ui_display(current_baddie, draw_pile, discard_pile, jester_uses, hand)
                         card = str(input(f"{input_color("You are defending!", "BRIGHT_BLUE")}\tBlock {current_baddie["this_attack"]} damage\n")).strip()
                         if card == "9" and jester_uses != 0:
                             jester(draw_pile, hand, discard_pile)
@@ -407,6 +408,98 @@ def game():
                     current_baddie["this_attack"] = current_baddie["damage"]
 
 
+def multiplayer(players):
+    jester_uses = 0
+    draw_pile = new_deck()
+    if players > 2:
+        draw_pile.append((input_color("Jes", "RED", "WHITE"), input_color("ter", "BLACK", "WHITE")))
+    if players > 3:
+        draw_pile.append((input_color("Jes", "BLACK", "WHITE"), input_color("ter", "RED", "WHITE")))
+    random.shuffle(draw_pile)
+    baddies = enemies()
+    current_baddie = new_enemy(baddies)
+    discard_pile = []
+    each_player_hand = []
+    for player_number in range(players):
+        each_player_hand.append(draw_cards(draw_pile, [], 8, 9 - players))
+    game_end = False
+    exception = False
+    current_player = 0
+    while not game_end:
+        hand = each_player_hand[current_player]
+        os.system('cls||clear')
+        if exception:
+            print(exception)
+        else:
+            print("")
+        exception = False
+        if len(hand) == 0:
+            print("Game Over")
+            break
+        user_input = False
+        ui_display(current_baddie, draw_pile, discard_pile, 0, hand)
+        while not user_input:
+            user_input = input(f"{input_color("You are attacking!", "YELLOW")}\n").strip()
+            action = ""
+            try:
+                int(user_input)
+            except ValueError:
+                os.system('cls||clear')
+                print(HELPTEXT)
+                input("Press enter to go back to the game:")
+                break
+            if user_input:
+                action = input_parser(0, draw_pile, current_baddie, hand, discard_pile, user_input)
+            if type(action) == str:
+                exception = action
+            elif type(action) == int:
+                jester_uses = action
+            elif type(action) == dict:
+                current_baddie = dict(action)
+                if int(current_baddie["health"]) <= 0:
+                    discard_pile.append(current_baddie["card"])
+                    if len(baddies) > 0:
+                        current_baddie = new_enemy(baddies)
+                    else:
+                        print(f"{input_color(" Victory! ", "WHITE", "BLACK")}")
+                        game_end = True
+                        break
+                else:
+                    exception = False
+                    while current_baddie["this_attack"] > 0:
+                        os.system('cls||clear')
+                        if exception:
+                            print(exception)
+                        else:
+                            print("")
+                        if len(hand) == 0 and jester_uses == 0:
+                            print("Game Over")
+                            game_end = True
+                            break
+                        ui_display(current_baddie, draw_pile, discard_pile, jester_uses, hand)
+                        card = str(input(
+                            f"{input_color("You are defending!", "BRIGHT_BLUE")}\tBlock {current_baddie["this_attack"]} damage\n")).strip()
+                        if card == "9" and jester_uses != 0:
+                            jester(draw_pile, hand, discard_pile)
+                            jester_uses -= 1
+                        else:
+                            try:
+                                current_baddie = block_attack(current_baddie, hand, hand[int(card[0])], discard_pile)
+                                exception = False
+                            except IndexError:
+                                exception = input_color("You don't have that card", "RED")
+                            except ValueError:
+                                exception = input_color("Wrong input", "RED")
+                        if type(current_baddie) == str:
+                            print(current_baddie)
+                            break
+                    current_baddie["this_attack"] = current_baddie["damage"]
+                    if current_player == players - 1:
+                        current_player = 0
+                    else:
+                        current_player += 1
+
+
 def main():
     print(HELPTEXT)
     players = False
@@ -418,7 +511,10 @@ def main():
         if 1 > players or players > 4:
             players = False
             print("please type an integer from 1-4:")
-    game()
+    if players == 1:
+        game()
+    else:
+        multiplayer(players)
 
 
 if __name__ == "__main__":
