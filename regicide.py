@@ -1,5 +1,6 @@
 import random
 import os
+import sys
 
 HELPTEXT = (
     "\n\nThis is a single player adaptation of the board/ card game Regicide."
@@ -150,9 +151,9 @@ def new_enemy(enemy_list):
                 "health": 40, "damage": 20, "this_attack": 20, "card": current_baddie}
 
 
-def draw_cards(draw_pile, hand, number_of_cards=1):
+def draw_cards(draw_pile, hand, number_of_cards=1, max_hand_size=8):
     for number in range(number_of_cards):
-        if len(hand) < 8 and len(draw_pile) > 0:
+        if len(hand) < max_hand_size and len(draw_pile) > 0:
             drawn_card = draw_pile.pop()
             placed = False
             counter = 0
@@ -222,6 +223,21 @@ def jester(draw_pile, hand, discard_pile):
     draw_cards(draw_pile, hand, 8)
 
 
+def add_card(card, large_royal_played):
+    current_value = card[0]
+    if current_value == "A":
+        current_value = 1
+    elif current_value == "J":
+        current_value = 10
+    elif current_value == "Q":
+        current_value = 15
+        large_royal_played = True
+    elif current_value == "K":
+        current_value = 20
+        large_royal_played = True
+    return current_value, large_royal_played
+
+
 def attack(draw_pile, current_baddie, hand, discard_pile, *user_input):
     attack_value = 0
     previous_value = 0
@@ -233,23 +249,11 @@ def attack(draw_pile, current_baddie, hand, discard_pile, *user_input):
     values = [card[0] for card in user_input]
     if len(values) > 2:
         if "A" in values:
-            return input_color("Illegal pairing", "RED")
+            return input_color("Cannot play ace with combo", "RED")
         if not sum(values) / len(values) == values[0]:
             return input_color("Illegal pairing", "RED")
     for card in user_input:
-        current_value = card[0]
-        if current_value == "A":
-            current_value = 1
-        elif previous_value > 1 and previous_value != current_value:
-            return input_color("Illegal pairing", "RED")
-        elif current_value == "J":
-            current_value = 10
-        elif current_value == "Q":
-            current_value = 15
-            large_royal_played = True
-        elif current_value == "K":
-            current_value = 20
-            large_royal_played = True
+        current_value, large_royal_played = add_card(card, large_royal_played)
         attack_value += current_value
         if ((attack_value > 11 and not large_royal_played) or
                 (large_royal_played and not current_value <= 1 and not previous_value <= 1) or
@@ -286,17 +290,9 @@ def attack(draw_pile, current_baddie, hand, discard_pile, *user_input):
     return current_baddie
 
 
-def discard_a_card(current_baddie, hand, card, discard_pile):
+def block_attack(current_baddie, hand, card, discard_pile):
     if len(hand) > 0:
-        block = card[0]
-        if block == "A":
-            block = 1
-        elif block == "J":
-            block = 10
-        elif block == "Q":
-            block = 15
-        elif block == "K":
-            block = 20
+        block, _ = add_card(card, False)
         current_baddie["this_attack"] -= block
         discard_pile.append(card)
         hand.remove(card)
@@ -327,8 +323,6 @@ def baddie_stats(current_baddie, draw_pile, discard_pile, jester_uses, hand):
 
 
 def game():
-    print(HELPTEXT)
-    input("Press enter to play the game:")
     draw_pile = new_deck()
     random.shuffle(draw_pile)
     baddies = enemies()
@@ -401,7 +395,7 @@ def game():
                             jester_uses -= 1
                         else:
                             try:
-                                current_baddie = discard_a_card(current_baddie, hand, hand[int(card[0])], discard_pile)
+                                current_baddie = block_attack(current_baddie, hand, hand[int(card[0])], discard_pile)
                                 exception = False
                             except IndexError:
                                 exception = input_color("You don't have that card", "RED")
@@ -414,6 +408,16 @@ def game():
 
 
 def main():
+    print(HELPTEXT)
+    players = False
+    while not players:
+        try:
+            players = int(input("How many players are playing"))
+        except ValueError:
+            print("please type an integer from 1-4:")
+        if 1 > players or players > 4:
+            players = False
+            print("please type an integer from 1-4:")
     game()
 
 
