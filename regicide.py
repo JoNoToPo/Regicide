@@ -176,7 +176,7 @@ def draw_cards(draw_pile, hand, number_of_cards=1, max_hand_size=8, hands=None):
                     if counter >= len(hands[current_player]):
                         hands[current_player].append(drawn_card)
                         placed = True
-                    elif drawn_card[0] == "A":
+                    elif drawn_card[0] == "A" or drawn_card[0] == "Jes":
                         hands[current_player].insert(0, drawn_card)
                         placed = True
                     elif drawn_card[0] in ["J", "Q", "K"]:
@@ -202,14 +202,14 @@ def draw_cards(draw_pile, hand, number_of_cards=1, max_hand_size=8, hands=None):
                     if counter >= len(hand):
                         hand.append(drawn_card)
                         placed = True
-                    elif drawn_card[0] == "A":
+                    elif drawn_card[0] == "A" or drawn_card[0] == "Jes":
                         hand.insert(0, drawn_card)
                         placed = True
                     elif drawn_card[0] in ["J", "Q", "K"]:
                         hand.append(drawn_card)
                         placed = True
-                    elif (hand[counter][0] != "A" and (hand[counter][0] in ["J", "Q", "K"] or
-                                                       hand[counter][0] >= drawn_card[0])):
+                    elif (hand[counter][0] != "A" and hand[counter][0] != "Jes" and (hand[counter][0] in ["J", "Q", "K"] or
+                            hand[counter][0] >= drawn_card[0])):
                         hand.insert(counter, drawn_card)
                         placed = True
                     counter += 1
@@ -452,13 +452,34 @@ def game():
                     current_baddie["this_attack"] = current_baddie["damage"]
 
 
+def multiplayer_jester(players, current_player, current_baddie, undecided=True):
+    current_baddie["Blocks"] = False
+    choice = 0
+    if current_baddie["Name"][0] == "J":
+        current_baddie["Name"] = "Jack of Sadness :("
+    if current_baddie["Name"][0] == "Q":
+        current_baddie["Name"] = "Queen of Sorrow :("
+    if current_baddie["Name"][0] == "K":
+        current_baddie["Name"] = "King of Pity :("
+    print("\nYou disabled the Royal's suit!")
+    while undecided:
+        try:
+            choice = int(input(f"you are player {current_player} which player 0-{players - 1} should go next?"))
+        except ValueError:
+            print("please type an integer.")
+        if choice != current_player and players > choice > 0:
+            undecided = False
+        else:
+            print("invalid choice")
+    return choice, current_baddie
+
 def multiplayer(players):
     jester_uses = 0
     draw_pile = new_deck()
     if players > 2:
-        draw_pile.append((input_color("Jes", "RED", "WHITE"), input_color("ter", "BLACK", "WHITE")))
+        draw_pile.append(("Jes", input_color("ter", "RED", "WHITE")))
     if players > 3:
-        draw_pile.append((input_color("Jes", "BLACK", "WHITE"), input_color("ter", "RED", "WHITE")))
+        draw_pile.append(("Jes", input_color("ter", "BLACK", "WHITE")))
     random.shuffle(draw_pile)
     baddies = enemies()
     current_baddie = new_enemy(baddies)
@@ -484,7 +505,7 @@ def multiplayer(players):
         ui_display(current_baddie, draw_pile, discard_pile, 0, hand)
         while not user_input:
             user_input = input(f"{input_color("You are attacking!", "YELLOW")}\n").strip()
-            action = ""
+            action = "Jester played"
             try:
                 int(user_input)
             except ValueError:
@@ -493,7 +514,12 @@ def multiplayer(players):
                 input("Press enter to go back to the game:")
                 break
             if user_input:
-                action = input_parser(0, draw_pile, current_baddie, hand, discard_pile, user_input, each_player_hand)
+                if hand[int(user_input[0])][0] == "Jes":
+                    current_player, current_baddie = multiplayer_jester(players, current_player, current_baddie)
+                    hand.remove(hand[int(user_input[0])])
+                    break
+                else:
+                    action = input_parser(0, draw_pile, current_baddie, hand, discard_pile, user_input, each_player_hand)
             if type(action) == str:
                 exception = action
             elif type(action) == int:
