@@ -329,6 +329,7 @@ def attack(draw_pile, current_baddie, hand, hands, discard_pile, *user_input):
                 draw_pile.insert(0, drawn_card)
     if shield:
         current_baddie["this_attack"] -= attack_value
+        current_baddie["damage"] -= attack_value
     for card in user_input:
         discard_pile.append(card)
     current_baddie["health"] -= (attack_value * multiplier)
@@ -513,6 +514,12 @@ def multiplayer(players):
                 print(HELPTEXT)
                 input("Press enter to go back to the game:")
                 break
+            try:
+                for number in user_input:
+                    hand[int(number)][0] == "Jes"
+            except IndexError:
+                exception = input_color("You don't have that card", "RED")
+                break
             if user_input:
                 if hand[int(user_input[0])][0] == "Jes":
                     current_player, current_baddie = multiplayer_jester(players, current_player, current_baddie)
@@ -549,25 +556,21 @@ def multiplayer(players):
                         ui_display(current_baddie, draw_pile, discard_pile, jester_uses, hand)
                         card = str(input(
                             f"{input_color("You are defending!", "BRIGHT_BLUE")}\tBlock {current_baddie["this_attack"]} damage\n")).strip()
-                        if card == "9" and jester_uses != 0:
-                            jester(draw_pile, hand, discard_pile)
-                            jester_uses -= 1
-                        else:
-                            try:
-                                current_baddie = block_attack(current_baddie, hand, hand[int(card[0])], discard_pile)
-                                exception = False
-                            except IndexError:
-                                exception = input_color("You don't have that card", "RED")
-                            except ValueError:
-                                exception = input_color("Wrong input", "RED")
+                        try:
+                            current_baddie = block_attack(current_baddie, hand, hand[int(card[0])], discard_pile)
+                            exception = False
+                        except IndexError:
+                            exception = input_color("You don't have that card", "RED")
+                        except ValueError:
+                            exception = input_color("Wrong input", "RED")
                         if type(current_baddie) == str:
                             print(current_baddie)
                             break
                     current_baddie["this_attack"] = current_baddie["damage"]
-            if current_player == players - 1:
-                current_player = 0
-            else:
-                current_player += 1
+                if current_player == players - 1:
+                    current_player = 0
+                else:
+                    current_player += 1
 
 
 def main():
