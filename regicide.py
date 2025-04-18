@@ -148,6 +148,7 @@ def new_enemy(enemy_list):
     if current_baddie[0] == "K":
         return {"Name": f"King of {suit_interpreter(current_baddie[1], "K")}", "Blocks": f"{current_baddie[1]}",
                 "health": 40, "damage": 20, "this_attack": 20, "card": current_baddie}
+    return None
 
 
 def draw_cards(draw_pile, hand, number_of_cards=1, max_hand_size=8, hands=None):
@@ -181,9 +182,9 @@ def draw_cards(draw_pile, hand, number_of_cards=1, max_hand_size=8, hands=None):
                     elif drawn_card[0] in ["J", "Q", "K"]:
                         hands[current_player].append(drawn_card)
                         placed = True
-                    elif (hands[current_player][counter][0] != "A" and (
-                            hands[current_player][counter][0] in ["J", "Q", "K"] or
-                            hands[current_player][counter][0] >= drawn_card[0])):
+                    elif (hands[current_player][counter][0] != "A" and hand[counter][0] != "Jes"
+                          and (hands[current_player][counter][0] in ["J", "Q", "K"] or
+                               hands[current_player][counter][0] >= drawn_card[0])):
                         hands[current_player].insert(counter, drawn_card)
                         placed = True
                     counter += 1
@@ -207,8 +208,8 @@ def draw_cards(draw_pile, hand, number_of_cards=1, max_hand_size=8, hands=None):
                     elif drawn_card[0] in ["J", "Q", "K"]:
                         hand.append(drawn_card)
                         placed = True
-                    elif (hand[counter][0] != "A" and hand[counter][0] != "Jes" and (hand[counter][0] in ["J", "Q", "K"] or
-                            hand[counter][0] >= drawn_card[0])):
+                    elif (hand[counter][0] != "A" and (hand[counter][0] in ["J", "Q", "K"] or
+                                                       hand[counter][0] >= drawn_card[0])):
                         hand.insert(counter, drawn_card)
                         placed = True
                     counter += 1
@@ -469,7 +470,7 @@ def multiplayer_jester(players, current_player, current_baddie, undecided=True):
             choice = int(input(f"you are player {current_player} which player 0-{players - 1} should go next?"))
         except ValueError:
             print("please type an integer.")
-        if choice != current_player and players > choice > 0:
+        if choice != current_player and players > choice >= 0:
             undecided = False
         else:
             print("invalid choice")
