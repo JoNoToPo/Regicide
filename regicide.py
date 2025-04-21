@@ -208,8 +208,8 @@ def draw_cards(draw_pile, hand, number_of_cards=1, max_hand_size=8, hands=None):
                     elif drawn_card[0] in ["J", "Q", "K"]:
                         hand.append(drawn_card)
                         placed = True
-                    elif (hand[counter][0] != "A" and (hand[counter][0] in ["J", "Q", "K"] or
-                                                       hand[counter][0] >= drawn_card[0])):
+                    elif (hand[counter][0] != "A" and hand[counter][0] != "Jes" and (hand[counter][0] in ["J", "Q", "K"] or
+                            hand[counter][0] >= drawn_card[0])):
                         hand.insert(counter, drawn_card)
                         placed = True
                     counter += 1
@@ -583,9 +583,10 @@ def main():
             players = int(input("How many players are playing"))
         except ValueError:
             print("please type an integer from 1-4:")
-        if 1 > players or players > 4:
-            players = False
-            print("please type an integer from 1-4:")
+        else:
+            if 1 > players or players > 4:
+                players = False
+                print("please type an integer from 1-4:")
     if players == 1:
         game()
     else:
