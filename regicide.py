@@ -1,5 +1,6 @@
 import random
 import os
+import webbrowser
 
 HELPTEXT = (
     "\n\nThis is a single player adaptation of the board/ card game Regicide."
@@ -11,7 +12,7 @@ HELPTEXT = (
     "\n\t4.) If you play multiple cards the effects of each card will be applied"
     "\n\n\tIf for whatever reason you ever want to yield, type 8."
     "\n\tTo use a Jester type 9."
-    "\n\n    See the rest of the rules for the game at regicide's website:"
+    "\n\n    To see the rest of the rules for the game type 'help' which will open up regicide's website:"
     "\n\tregicidegame.com\n")
 
 
@@ -208,7 +209,8 @@ def draw_cards(draw_pile, hand, number_of_cards=1, max_hand_size=8, hands=None):
                     elif drawn_card[0] in ["J", "Q", "K"]:
                         hand.append(drawn_card)
                         placed = True
-                    elif (hand[counter][0] != "A" and hand[counter][0] != "Jes" and (hand[counter][0] in ["J", "Q", "K"] or
+                    elif (hand[counter][0] != "A" and hand[counter][0] != "Jes" and (
+                            hand[counter][0] in ["J", "Q", "K"] or
                             hand[counter][0] >= drawn_card[0])):
                         hand.insert(counter, drawn_card)
                         placed = True
@@ -401,7 +403,9 @@ def game():
             except ValueError:
                 os.system('cls||clear')
                 print(HELPTEXT)
-                input("Press enter to go back to the game:")
+                maybe_help = input("Press enter to go back to the game:")
+                if maybe_help.strip().lower() == "help":
+                    webbrowser.open("https://www.regicidegame.com/site_files/33132/upload_files/RegicideRulesA4.pdf")
                 break
             if user_input:
                 action = input_parser(jester_uses, draw_pile, current_baddie, hand, discard_pile, user_input)
@@ -437,7 +441,8 @@ def game():
                             game_end = True
                             break
                         ui_display(current_baddie, draw_pile, discard_pile, jester_uses, hand)
-                        card = str(input(f"{input_color("You are defending!", "BRIGHT_BLUE")}\tBlock {current_baddie["this_attack"]} damage\n")).strip()
+                        card = str(input(
+                            f"{input_color("You are defending!", "BRIGHT_BLUE")}\tBlock {current_baddie["this_attack"]} damage\n")).strip()
                         if card == "9" and jester_uses != 0:
                             jester(draw_pile, hand, discard_pile)
                             jester_uses -= 1
@@ -475,6 +480,7 @@ def multiplayer_jester(players, current_player, current_baddie, undecided=True):
         else:
             print("invalid choice")
     return choice, current_baddie
+
 
 def multiplayer(players):
     jester_uses = 0
@@ -518,7 +524,7 @@ def multiplayer(players):
                 break
             try:
                 for number in user_input:
-                    hand[int(number)][0] == "Jes"
+                    hand[int(number)][0] == ""
             except IndexError:
                 exception = input_color("You don't have that card", "RED")
                 break
@@ -528,7 +534,8 @@ def multiplayer(players):
                     hand.remove(hand[int(user_input[0])])
                     break
                 else:
-                    action = input_parser(0, draw_pile, current_baddie, hand, discard_pile, user_input, each_player_hand)
+                    action = input_parser(0, draw_pile, current_baddie, hand, discard_pile, user_input,
+                                          each_player_hand)
             if type(action) == str:
                 exception = action
             elif type(action) == int:
@@ -578,15 +585,19 @@ def multiplayer(players):
 def main():
     print(HELPTEXT)
     players = False
-    while not players:
+    while True:
+        players = input("How many players are playing")
+        if players.strip().lower() == "help":
+            webbrowser.open("https://www.regicidegame.com/site_files/33132/upload_files/RegicideRulesA4.pdf")
         try:
-            players = int(input("How many players are playing"))
-        except ValueError:
+            players = int(players)
+        except ValueError or TypeError:
             print("please type an integer from 1-4:")
         else:
             if 1 > players or players > 4:
-                players = False
                 print("please type an integer from 1-4:")
+            else:
+                break
     if players == 1:
         game()
     else:
