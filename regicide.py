@@ -584,7 +584,6 @@ def multiplayer(players):
 
 def main():
     print(HELPTEXT)
-    players = False
     while True:
         players = input("How many players are playing")
         if players.strip().lower() == "help":
