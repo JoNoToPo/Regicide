@@ -1,8 +1,7 @@
 import random
 import os
 import webbrowser
-from art import input_color
-from art import suit_interpreter
+from art import input_color, suit_interpreter, ui_display
 from initialize import new_deck, enemies
 
 HELPTEXT = (
