@@ -1,3 +1,6 @@
+from art import input_color
+
+
 def new_deck():
     """
     Creates a new deck of cards containing each card from ace through 10
