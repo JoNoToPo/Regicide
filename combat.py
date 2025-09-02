@@ -31,7 +31,7 @@ def block_attack(current_baddie, hand, card, discard_pile):
         return "Game Over"
 
 
-def suit_parse(card, suits, current_baddie):
+def attack_suit_parse(card, suits, current_baddie):
     if card[1] == input_color("♠", "BLACK", "WHITE") and current_baddie["Blocks"] != input_color("♠", "BLACK",
                                                                                                  "WHITE"):
         suits[3] = True
@@ -65,7 +65,7 @@ def attack(draw_pile, current_baddie, hand, hands, discard_pile, *user_input):
                 (large_royal_played and not current_value <= 1 and not previous_value <= 1) or
                 (current_value != previous_value and not current_value <= 1 and not previous_value <= 1)):
             return input_color("Illegal pairing", "RED")
-        suits = suit_parse(card, suits, current_baddie)
+        suits = attack_suit_parse(card, suits, current_baddie)
         previous_value = int(current_value)
     for card in user_input:
         hand.remove(card)
