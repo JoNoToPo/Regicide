@@ -84,3 +84,24 @@ def suit_interpreter(suit_symbol, letter):
         return f"{input_color(" Diamonds ", "RED", "WHITE")} {input_color(letter, "BLACK", "WHITE")}{input_color("♦", "RED", "WHITE")}"
     else:
         return "That's not a suit symbol."
+
+
+def ui_display(current_baddie, draw_pile, discard_pile, jester_uses, hand):
+    print(f"See the rules at any time by pressing enter."
+          f"\n\n{current_baddie["Name"]}")
+    print(
+        f"Health: {input_color(current_baddie["health"], "WHITE", "RED")}\tDamage: {input_color(current_baddie["damage"], "WHITE", "RED")}\t")
+    print(f"\nJesters:\t{jester_uses} Jesters left")
+    print(f"Draw pile:\t{len(draw_pile)} cards left")
+    print("Discard pile:", end="\t")
+    if len(discard_pile) != 0:
+        print(f"{len(discard_pile)} cards in total with "
+              f"{input_color([discard_pile[-1] if len(discard_pile) > 0 else "nothing"][0][0], "BLACK", "WHITE")}"
+              f"{[discard_pile[-1] if len(discard_pile) > 0 else ""][0][1]} as the top card")
+    else:
+        print("Empty")
+    print("\nYour hand:")
+    for number in range(len(hand)):
+        print(f"{number}: {input_color(hand[number][0], "BLACK", "WHITE")}{hand[number][1]}",
+              end="\t")
+    print("8: Yield  9: Jester")
