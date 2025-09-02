@@ -1,4 +1,6 @@
+import random
 from art import input_color
+from regicide import draw_cards
 
 
 def add_card(card, large_royal_played):
